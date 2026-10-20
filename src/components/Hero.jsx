@@ -31,6 +31,101 @@ export default function Hero() {
   const root = useRef(null);
   const tlRef = useRef(null);
   const floatTlRef = useRef(null);
+  const canvasRef = useRef(null);
+  const particlesRef = useRef([]);
+  const rafRef = useRef(0);
+
+  /* ---------------------------------------------------------
+     Moteur d'étincelles (canvas) : petits carrés et traits
+     néo-brutalistes qui giclent avec gravité + friction.
+  --------------------------------------------------------- */
+  const sizeCanvas = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const r = canvas.getBoundingClientRect();
+    canvas.width = Math.max(1, Math.round(r.width * dpr));
+    canvas.height = Math.max(1, Math.round(r.height * dpr));
+  };
+
+  const sparkLoop = () => {
+    rafRef.current = 0;
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext('2d');
+    if (!canvas || !ctx) return;
+    const ps = particlesRef.current;
+    const w = canvas.width;
+    const h = canvas.height;
+    const dpr = w / (canvas.getBoundingClientRect().width || 1);
+    const g = 0.3 * dpr;
+    ctx.clearRect(0, 0, w, h);
+    for (let i = ps.length - 1; i >= 0; i--) {
+      const p = ps[i];
+      p.life += 1;
+      p.vx *= 0.985;
+      p.vy = p.vy * 0.985 + g;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rot += p.vr;
+      const t = 1 - p.life / p.ttl;
+      if (t <= 0 || p.y > h + 30 * dpr) {
+        ps.splice(i, 1);
+        continue;
+      }
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, t);
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      if (p.streak) ctx.fillRect(-p.s * 2.4, -p.s * 0.32, p.s * 4.8, p.s * 0.64);
+      else ctx.fillRect(-p.s / 2, -p.s / 2, p.s, p.s);
+      ctx.restore();
+    }
+    if (ps.length) rafRef.current = requestAnimationFrame(sparkLoop);
+    else ctx.clearRect(0, 0, w, h);
+  };
+
+  const burst = (x, y, count, power) => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const colors = ['#ffd500', '#fffdf6', '#101010', '#7cc9ab', '#ffe14d'];
+    const ps = particlesRef.current;
+    for (let i = 0; i < count; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const sp = (2.2 + Math.random() * 7.5) * power * dpr;
+      ps.push({
+        x: x * dpr,
+        y: y * dpr,
+        vx: Math.cos(a) * sp,
+        vy: Math.sin(a) * sp - 2.4 * dpr * power,
+        s: (2 + Math.random() * 4.5) * dpr,
+        rot: Math.random() * Math.PI,
+        vr: (Math.random() - 0.5) * 0.35,
+        ttl: 45 + Math.random() * 35,
+        life: 0,
+        color: colors[(Math.random() * colors.length) | 0],
+        streak: Math.random() < 0.35,
+      });
+    }
+    if (!rafRef.current) rafRef.current = requestAnimationFrame(sparkLoop);
+  };
+
+  /** Explosion d'étincelles centrée sur le panneau jaune. */
+  const burstAtPanel = (count, power) => {
+    const canvas = canvasRef.current;
+    const panel = root.current?.querySelector('.panel-wrap');
+    if (!canvas || !panel) return;
+    const cr = canvas.getBoundingClientRect();
+    const pr = panel.getBoundingClientRect();
+    burst(
+      pr.left + pr.width / 2 - cr.left,
+      pr.top + pr.height / 2 - cr.top,
+      count,
+      power
+    );
+  };
 
   const play = () => {
     tlRef.current?.kill();
@@ -50,6 +145,17 @@ export default function Hero() {
     const wrench = q('.hand--wrench');
     const hands = [hammer, screw, wrench].filter((h) => h.length > 0);
     const hasHands = hands.length === 3;
+    const crackPop = q('.pop--crack');
+    const fixedPop = q('.pop--fixed');
+    const pops = [crackPop, fixedPop];
+
+    // Reset du moteur d'étincelles
+    cancelAnimationFrame(rafRef.current);
+    rafRef.current = 0;
+    particlesRef.current = [];
+    sizeCanvas();
+    const cv = canvasRef.current;
+    cv?.getContext('2d')?.clearRect(0, 0, cv.width, cv.height);
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -61,6 +167,7 @@ export default function Hero() {
     gsap.set(ctas, { y: 30, opacity: 0, scale: 0.7 });
     gsap.set(flash, { opacity: 0 });
     gsap.set(shake, { x: 0, y: 0 });
+    gsap.set(pops, { scale: 0, opacity: 0, rotation: 0 });
     if (hasHands) {
       gsap.set(hammer, { xPercent: -160, yPercent: -150, rotation: -20 });
       gsap.set(screw, { xPercent: -190, yPercent: 30, rotation: 12 });
@@ -83,8 +190,14 @@ export default function Hero() {
       { scale: 0.45, opacity: 0, rotate: -8, yPercent: 8 },
       { scale: 1, opacity: 1, rotate: 0, yPercent: 0, duration: 0.8, ease: 'back.out(1.6)' }
     )
-      // Phase 1b : craquèlement — flash + secousse
+      // Phase 1b : craquèlement — flash + secousse + "CRACK !"
       .fromTo(flash, { opacity: 0 }, { opacity: 0.85, duration: 0.06, yoyo: true, repeat: 3, ease: 'none' }, '+=0.2')
+      .fromTo(
+        crackPop,
+        { scale: 0, opacity: 0, rotation: -32 },
+        { scale: 1, opacity: 1, rotation: -8, duration: 0.32, ease: 'back.out(2.4)' },
+        '<0.02'
+      )
       .to(
         shake,
         {
@@ -97,7 +210,7 @@ export default function Hero() {
         },
         '<'
       )
-      // Phase 1c : EXPLOSION — les éclats s'éparpillent
+      // Phase 1c : EXPLOSION — les éclats s'éparpillent + gerbe d'étincelles
       .to(
         shards,
         {
@@ -110,7 +223,10 @@ export default function Hero() {
           stagger: { each: 0.035, from: 'center' },
         },
         '-=0.05'
-      );
+      )
+      .call(() => burstAtPanel(90, 1), [], '<')
+      // l'onomatopée s'efface avant la réparation
+      .to(crackPop, { scale: 0.4, opacity: 0, duration: 0.22, ease: 'back.in(2)' }, '+=0.45');
 
     // Phase 2a (optionnelle) : les mains entrent en jeu
     if (hasHands) {
@@ -150,8 +266,17 @@ export default function Hero() {
         { opacity: 1, scale: 1.18, duration: 0.35, yoyo: true, repeat: 1, ease: 'sine.inOut' },
         '<'
       )
+      // Phase 2c : "RÉPARÉ !" + gerbe d'étincelles de fin
+      .fromTo(
+        fixedPop,
+        { scale: 0, opacity: 0, rotation: 26 },
+        { scale: 1, opacity: 1, rotation: 4, duration: 0.38, ease: 'back.out(2.2)' },
+        '-=0.3'
+      )
+      .call(() => burstAtPanel(40, 0.6), [], '<')
+      .to(fixedPop, { scale: 0.4, opacity: 0, duration: 0.2, ease: 'back.in(2)' }, '+=0.7')
       // Phase 3 : révélation du contenu
-      .to(words, { yPercent: 0, opacity: 1, duration: 0.8, stagger: 0.07, ease: 'back.out(1.5)' }, '-=0.55')
+      .to(words, { yPercent: 0, opacity: 1, duration: 0.8, stagger: 0.07, ease: 'back.out(1.5)' }, '-=0.05')
       .to(sub, { y: 0, opacity: 1, duration: 0.6 }, '-=0.45')
       .to(ctas, { y: 0, opacity: 1, scale: 1, duration: 0.55, stagger: 0.09, ease: 'back.out(1.8)' }, '-=0.35');
 
@@ -191,6 +316,11 @@ export default function Hero() {
     if (glow) glow.style.top = `${topPct}%`;
   };
 
+  const onResize = () => {
+    centerPanel();
+    sizeCanvas();
+  };
+
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
       // Démarrage quand les polices sont prêtes (évite le "jump" de layout)
@@ -203,7 +333,7 @@ export default function Hero() {
       } else {
         setTimeout(start, 200);
       }
-      window.addEventListener('resize', centerPanel);
+      window.addEventListener('resize', onResize);
 
       // Parallaxe au scroll : le visuel s'éloigne doucement
       gsap.to('.hero-visual', {
@@ -220,7 +350,10 @@ export default function Hero() {
     }, root);
 
     return () => {
-      window.removeEventListener('resize', centerPanel);
+      window.removeEventListener('resize', onResize);
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = 0;
+      particlesRef.current = [];
       tlRef.current?.kill();
       floatTlRef.current?.kill();
       ctx.revert();
@@ -239,10 +372,18 @@ export default function Hero() {
                 <div key={i} className="shard" style={{ clipPath: cp }} />
               ))}
             </div>
+            {/* Onomatopées BD (animées par la timeline GSAP) */}
+            <div className="pop pop--crack" aria-hidden="true">
+              Crack !
+            </div>
+            <div className="pop pop--fixed" aria-hidden="true">
+              Réparé !
+            </div>
           </div>
           {/* Emplacement des mains réparatrices : voir HANDOFF.md */}
         </div>
         <div className="hero-flash" />
+        <canvas className="hero-sparks" ref={canvasRef} />
       </div>
 
       {/* Contenu */}

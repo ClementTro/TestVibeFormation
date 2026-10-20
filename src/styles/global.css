@@ -243,6 +243,48 @@ a {
   pointer-events: none;
 }
 
+/* Canvas des étincelles (au-dessus de tout, très bref) */
+.hero-sparks {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 6;
+  pointer-events: none;
+}
+
+/* Onomatopées façon BD — stickers néo-brutalistes */
+.pop {
+  position: absolute;
+  z-index: 7;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-size: clamp(1.05rem, 3vw, 2rem);
+  line-height: 1;
+  padding: 0.32em 0.55em;
+  border: var(--border);
+  border-radius: 12px;
+  box-shadow: 5px 5px 0 var(--ink);
+  color: var(--ink);
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+  white-space: nowrap;
+  will-change: transform, opacity;
+}
+
+.pop--crack {
+  top: -0.55em;
+  left: -0.5em;
+  background: var(--yellow);
+}
+
+.pop--fixed {
+  bottom: -0.55em;
+  right: -0.5em;
+  background: var(--paper);
+}
+
 .hero-content {
   position: relative;
   z-index: 3;

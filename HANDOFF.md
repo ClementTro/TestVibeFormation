@@ -66,10 +66,16 @@ git push         # déploie automatiquement le site en ligne
    la constante `SHARDS`) avec `back.out`
 2. **Cassure** : flash blanc + screen-shake (`keyframes` sur `.hero-shake`) + EXPLOSION
    des 9 éclats (x/y/rotation/blur aléatoires, stagger `from: 'center'`)
-3. **[EMPLACEMENT MAINS — voir §5]** : le code prévoit une phase optionnelle
-   `.hand--hammer` / `.hand--screwdriver` / `.hand--wrench` qui ne s'active QUE si les
-   3 éléments existent dans le DOM (`hasHands`). Sinon la timeline saute directement
-   à la phase 4 — **c'est l'état actuel : aucun élément main dans le JSX.**
+3. **[FAIT le 20/10 après-midi]** : renforcement "sans mains" validé par tests navigateur :
+   - **Onomatopées BD** : sticker « CRACK ! » (jaune, coin haut-gauche du panneau) qui
+     claque au moment du flash, et sticker « RÉPARÉ ! » (blanc, coin bas-droite) au
+     réassemblage. CSS `.pop` / `.pop--crack` / `.pop--fixed`, animées dans la timeline.
+   - **Étincelles canvas** : `.hero-sparks` (canvas plein hero, z-index 6), moteur de
+     particules maison (carrés + traits, gravité/friction, couleurs de la palette).
+     2 gerbes : 90 particules à l'explosion, 40 à la réparation.
+   - ⚠️ Piège résolu : un `<canvas>` en `position:absolute; inset:0` garde sa taille
+     intrinsèque 300×150 (élément remplacé) — il FAUT `width:100%; height:100%` en CSS.
+   - La logique `hasHands` reste en place : ajouter `.hand--*` réactiverait la phase mains.
 4. **Réassemblage** des éclats (stagger `from: 'random'`) + pulsation de la lueur jaune
 5. **Révélation** : mots du titre en `yPercent` + `back.out`, puis sous-titre et CTA
 
@@ -81,11 +87,13 @@ Autres points clés du Hero :
 - `prefers-reduced-motion` : états finaux posés directement.
 - Parallaxe scroll sur `.hero-visual` et `.hero-content` (scrub).
 
-## 5. ⚠️ LE POINT EN SUSPENS : les mains avec outils (échecs documentés)
+## 5. Le point mains : EN SUSPENS, l'utilisateur a choisi la voie "sans mains"
 
-L'utilisateur veut, autour du panneau jaune, **3 mains qui "réparent"** — l'une avec un
-**marteau**, l'une avec un **tournevis**, l'une avec une **clé à molette**. C'est le seul
-point bloquant. Deux approches ont été tentées et REJETÉES explicitement :
+Le 20/10 après-midi, face au choix « sans mains plus percutant » vs illustrations,
+l'utilisateur a choisi **la voie "sans mains"** (piste 6 ci-dessous, désormais FAITE).
+Les mains restent possibles plus tard si l'utilisateur change d'avis — le code du Hero
+garde la logique `hasHands` prête à les accueillir. Deux approches ont été tentées et
+REJETÉES explicitement :
 
 | Essai | Fichiers | Verdict utilisateur |
 |---|---|---|
@@ -97,21 +105,19 @@ en cercles. Il faut un rendu premium.
 
 ### Pistes envisagées pour la suite (à discuter avec l'utilisateur) :
 
-1. **Illustrations générées par IA** (Midjourney/DALL·E/Ideogram) : prompt du type
+1. ~~**Pivot créatif sans mains**~~ : ✅ FAIT le 20/10 — étincelles canvas + onomatopées
+   « CRACK ! » / « RÉPARÉ ! » (voir §4 point 3). L'utilisateur a choisi cette voie.
+2. **Illustrations générées par IA** (Midjourney/DALL·E/Ideogram) : prompt du type
    "pop-art halftone black and white hand holding hammer, white background", puis
-   détourage → PNG transparent. Rendu quasi-garanti, cohérent avec le style du site
-   original. L'utilisateur peut générer lui-même avec son outil préféré.
-2. **Lottie** : animations vectorielles de mains/outils (LottieFiles, chercher
+   détourage → PNG transparent. L'utilisateur peut générer lui-même. Option gardée
+   en réserve s'il veut des mains un jour.
+3. **Lottie** : animations vectorielles de mains/outils (LottieFiles, chercher
    "hand repair", "tool fix"). Animées dès l'arrivée = très vivant. Vérifier licence.
-3. **3D** (three.js / Spline) : mains low-poly stylisées ou gros outils 3D qui
+4. **3D** (three.js / Spline) : mains low-poly stylisées ou gros outils 3D qui
    tournent. Plus lourd, mais très "WOW".
-4. **Illustrations premium gratuites** : sets du type Streamline/Storyset — chercher
-   des mains réparatrices stylisées de qualité pro.
-5. **Commande à un illustrateur** (Fiverr etc.) pour 3 SVG/PSD sur mesure dans le
+5. **Illustrations premium gratuites** : sets du type Streamline/Storyset.
+6. **Commande à un illustrateur** (Fiverr etc.) pour 3 SVG/PSD sur mesure dans le
    style halftone punk-zine du site original.
-6. **Pivot créatif sans mains** : l'animation casse/répare seule reste très forte ;
-   on peut renforcer l'impact autrement (étincelles canvas au moment de la cassure,
-   onomatopées "CRACK !" à la bande dessinée, son).
 
 ### Assets disponibles dans `public/hands/` (photos Pexels, licence libre)
 - `hammer-a.jpg` — main frappant un clou (action)
@@ -134,9 +140,11 @@ en cercles. Il faut un rendu premium.
 ## 7. Checklist pour reprendre
 
 1. `npm install` puis `npm run dev` (ou `preview` après `build`)
-2. Lire ce fichier, puis `src/components/Hero.jsx` (section "EMPLACEMENT MAINS")
-3. Proposer à l'utilisateur 2-3 des pistes du §5 AVANT de coder quoi que ce soit
-   (les deux derniers essais ont échoué faute de validation visuelle préalable)
+2. Lire ce fichier, puis `src/components/Hero.jsx` (le moteur d'étincelles est en tête
+   de composant, la timeline dans `play()`)
+3. ~~Proposer les pistes du §5~~ : fait le 20/10 — voie "sans mains" choisie et livrée.
+   Si l'utilisateur veut revenir aux mains, revoir §5 (pistes 2 à 6) et VALIDER un
+   visuel avec lui AVANT de coder (les deux échecs documentés §5).
 4. Pour insérer des mains : ajouter les éléments `.hand--hammer/.hand--screwdriver/
    .hand--wrench` dans le JSX du Hero (dans `.hero-visual`) + CSS `.hand` correspondant ;
    la timeline GSAP les prendra automatiquement en compte (logique `hasHands`)
