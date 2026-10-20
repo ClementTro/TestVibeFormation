@@ -2,20 +2,43 @@
 
 > **À lire en premier si tu reprends ce projet.** Ce fichier contient tout le contexte
 > nécessaire pour continuer le travail sans repartir de zéro. Dernière mise à jour :
-> 20 octobre 2026, ~15h50.
+> 20 octobre 2026, ~19h20 (architecture multi-pages).
 
 ---
 
 ## 1. Le projet en une phrase
 
-Refonte "WOW" de https://journeesreparation.fr/ (site WordPress des Journées Nationales
-de la Réparation) : une homepage React + Vite animée avec GSAP, hébergée sur GitHub Pages.
+Vitrine multi-pages "Les Journées Nationales" + page thématique JNR (clone de
+https://journeesreparation.fr/) : React + Vite animé avec GSAP, hébergé sur GitHub Pages.
 
 - **Repo GitHub** : https://github.com/ClementTro/TestVibeFormation (branche `main`)
 - **Site en ligne** : https://clementtro.github.io/TestVibeFormation/
 - **Déploiement** : automatique via GitHub Actions à chaque push sur `main`
   (workflow : `.github/workflows/deploy.yml`, GitHub Pages activé en mode "GitHub Actions")
 - **L'iframe map du site original est ignorée** (demande explicite de l'utilisateur)
+
+## 1bis. ⚠️ ARCHITECTURE MULTI-PAGES (depuis le 20/10 soir)
+
+- **`/`** → LA VITRINE globale "Les Journées Nationales" (`index.html` →
+  `src/landing/landing-main.jsx` → `LandingApp.jsx`, style `src/styles/landing.css`,
+  design nuit noir + jaune/menthe). C'est LA page d'accueil.
+- **`/jnr`** → la page thématique JNR, l'ancienne home clone (`jnr.html` →
+  `src/main.jsx` → `App.jsx`, style `global.css`, menthe néo-brutaliste).
+  GitHub Pages sert `jnr.html` sur l'URL propre `/jnr` (extensions .html masquées).
+- **SNPS / SIAT / LGSV** : présents dans les navbars en liens "bientôt" (`.is-soon`),
+  pages à créer PLUS TARD quand l'utilisateur donnera leur contenu. Pour en ajouter une :
+  1. créer `snps.html` sur le modèle de `jnr.html`, 2. ajouter l'entrée dans
+  `build.rollupOptions.input` de `vite.config.js`, 3. mettre `live: true` + `href`
+  dans `src/data/themes.js`. Ce fichier THEMES pilote TOUTES les navbars et la
+  section rendez-vous — c'est le seul endroit à éditer.
+- Chaque page garde SA navbar stylée (voulu par l'utilisateur) : navbar nuit sur la
+  vitrine (`src/landing/LandingNav.jsx`), navbar menthe sur JNR (`src/components/Header.jsx`
+  avec JNR actif en pastille + logo qui ramène à la vitrine).
+- La vitrine contient : constellation de particules interactive (canvas, répulsion
+  souris), titre cinétique + badge circulaire rotatif (textPath), parallaxe souris,
+  marquee infini, section rendez-vous en scroll horizontal ÉPINGLÉ (gsap.matchMedia,
+  pin desktop / scroll-snap tactile), compteurs, CTA géant magnétique, curseur custom
+  (point jaune + anneau, desktop only), boutons magnétiques (`Magnetic.jsx`).
 
 ## 2. Stack & commandes
 

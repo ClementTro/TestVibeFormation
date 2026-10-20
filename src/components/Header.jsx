@@ -1,3 +1,5 @@
+import { BASE, THEMES } from '../data/themes.js';
+
 const SOCIAL_ICONS = {
   facebook: (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#101010" strokeWidth="2.5">
@@ -18,19 +20,33 @@ const SOCIAL_ICONS = {
   ),
 };
 
+/**
+ * Navbar de la page JNR (style menthe néo-brutaliste, inchangé).
+ * Les liens pointent désormais vers la famille de rendez-vous :
+ * JNR = page courante, les autres = bientôt disponibles.
+ * Le logo ramène à la grande vitrine (page d'accueil globale).
+ */
 export default function Header() {
   return (
     <header className="header">
       <div className="container header-inner">
-        <a href="#accueil" className="logo">
+        <a href={BASE} className="logo" title="Retour à la vitrine">
           <span className="logo-badge">JNR</span>
           <span>Réparation</span>
         </a>
 
         <nav className="nav" aria-label="Navigation principale">
-          <a href="#manifeste">Actualités</a>
-          <a href="#manifeste">Organisateurs</a>
-          <a href="#partenaires">Ressources</a>
+          {THEMES.map((t) =>
+            t.live ? (
+              <a key={t.key} href="#accueil" className="is-active" title="Vous y êtes">
+                {t.acronym}
+              </a>
+            ) : (
+              <span key={t.key} className="is-soon" title="Bientôt disponible">
+                {t.acronym}
+              </span>
+            )
+          )}
         </nav>
 
         <div className="socials">
