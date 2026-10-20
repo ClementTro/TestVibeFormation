@@ -1,15 +1,14 @@
 import { useLayoutEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { BASE, THEMES } from '../../data/themes.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const LINKS = [
-  { label: 'Le projet', href: '#projet' },
-  { label: 'Espace organisateur', href: '#organisateur' },
-  { label: 'Actualités', href: '#actualites' },
-  { label: 'Contact', href: '#contact' },
-];
+// Contenu navbar = même contenu que la HOME : la famille de rendez-vous.
+// Aucune ancre — la page courante (LGSV) est marquée « vous y êtes ».
+const PAGE_KEY = 'lgsv';
+const OFFICIAL_SITE = 'https://lagrandesemainevegetale.fr/';
 
 export default function Nav() {
   const barRef = useRef(null);
@@ -41,21 +40,31 @@ export default function Nav() {
   return (
     <header className="lg-header">
       <div className="lg-header-inner container">
-        <a href="#accueil" className="lg-logo" aria-label="La Grande Semaine Végétale — retour en haut">
+        <a href={BASE} className="lg-logo" aria-label="La Grande Semaine Végétale — retour à la vitrine">
           <span className="lg-logo-badge">LGSV</span>
           <span className="lg-logo-text">La Grande Semaine Végétale</span>
         </a>
 
         <nav className="lg-nav" aria-label="Navigation principale">
-          {LINKS.map((l) => (
-            <a key={l.href} href={l.href} className="lg-nav-link">
-              {l.label}
-            </a>
-          ))}
+          {THEMES.map((t) =>
+            t.key === PAGE_KEY ? (
+              <span key={t.key} className="lg-nav-link is-active" aria-current="page" title="Vous y êtes">
+                {t.acronym}
+              </span>
+            ) : t.live ? (
+              <a key={t.key} href={t.href} className="lg-nav-link">
+                {t.acronym}
+              </a>
+            ) : (
+              <span key={t.key} className="lg-nav-link is-soon" title="Bientôt disponible">
+                {t.acronym}
+              </span>
+            )
+          )}
         </nav>
 
-        <a href="#organisateur" className="lg-cta">
-          Inscrire son événement
+        <a href={OFFICIAL_SITE} target="_blank" rel="noopener noreferrer" className="lg-cta">
+          Inscrire son événement ↗
         </a>
       </div>
       <span className="lg-progress" aria-hidden="true" ref={barRef} />

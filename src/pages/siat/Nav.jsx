@@ -1,15 +1,10 @@
 import { useEffect, useState } from 'react';
-import { BASE } from '../../data/themes.js';
+import { BASE, THEMES } from '../../data/themes.js';
 
-const LINKS = [
-  { label: 'Accueil', href: '#accueil' },
-  { label: 'Événements', href: '#chiffres' },
-  { label: 'Manifeste', href: '#manifeste' },
-  { label: 'Organiser un événement', href: '#organiser' },
-  { label: "Soutenir l'événement", href: '#aventure' },
-  { label: 'Nos actus', href: '#newsletter' },
-  { label: 'Contactez-nous', href: '#contact' },
-];
+// Contenu navbar = même contenu que la HOME : la famille de rendez-vous.
+// Aucune ancre — la page courante (SIAT) est marquée « vous y êtes ».
+const PAGE_KEY = 'siat';
+const OFFICIAL_SITE = 'https://semaine-ia.fr/';
 
 /**
  * Navbar SIAT : bandeau bleu nuit collant, logo empilé « à la DA »
@@ -37,15 +32,25 @@ export default function Nav() {
         </a>
 
         <nav className="ia-nav" aria-label="Navigation principale">
-          {LINKS.map((l) => (
-            <a key={l.href + l.label} href={l.href} className="ia-nav-link">
-              {l.label}
-            </a>
-          ))}
+          {THEMES.map((t) =>
+            t.key === PAGE_KEY ? (
+              <span key={t.key} className="ia-nav-link is-active" aria-current="page" title="Vous y êtes">
+                {t.acronym}
+              </span>
+            ) : t.live ? (
+              <a key={t.key} href={t.href} className="ia-nav-link">
+                {t.acronym}
+              </a>
+            ) : (
+              <span key={t.key} className="ia-nav-link is-soon" title="Bientôt disponible">
+                {t.acronym}
+              </span>
+            )
+          )}
         </nav>
 
-        <a href="#organiser" className="ia-btn ia-btn--sm ia-header-cta">
-          Proposer mon évènement
+        <a href={OFFICIAL_SITE} target="_blank" rel="noopener noreferrer" className="ia-btn ia-btn--sm ia-header-cta">
+          Proposer mon évènement ↗
         </a>
 
         <button
@@ -64,13 +69,23 @@ export default function Nav() {
 
       <div id="ia-mobile-menu" className={`ia-mobile${open ? ' is-open' : ''}`}>
         <nav className="ia-mobile-nav" aria-label="Navigation mobile">
-          {LINKS.map((l) => (
-            <a key={l.href + l.label} href={l.href} onClick={() => setOpen(false)}>
-              {l.label}
-            </a>
-          ))}
-          <a href="#organiser" className="ia-btn" onClick={() => setOpen(false)}>
-            Proposer mon évènement
+          {THEMES.map((t) =>
+            t.key === PAGE_KEY ? (
+              <span key={t.key} className="is-active" aria-current="page" title="Vous y êtes">
+                {t.acronym}
+              </span>
+            ) : t.live ? (
+              <a key={t.key} href={t.href}>
+                {t.acronym}
+              </a>
+            ) : (
+              <span key={t.key} className="is-soon" title="Bientôt disponible">
+                {t.acronym}
+              </span>
+            )
+          )}
+          <a href={OFFICIAL_SITE} target="_blank" rel="noopener noreferrer" className="ia-btn">
+            Proposer mon évènement ↗
           </a>
         </nav>
       </div>

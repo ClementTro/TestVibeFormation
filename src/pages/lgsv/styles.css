@@ -142,6 +142,19 @@ a {
   right: 0;
 }
 
+/* Page courante (LGSV sur la page LGSV) — pilule vert profond */
+.lg-nav-link.is-active {
+  background: var(--lg-deep);
+  color: var(--lg-lime);
+  padding: 0.28em 0.85em;
+  border-radius: 999px;
+  cursor: default;
+}
+
+.lg-nav-link.is-active::after {
+  display: none;
+}
+
 .lg-cta {
   font-family: var(--font-body);
   font-weight: 700;

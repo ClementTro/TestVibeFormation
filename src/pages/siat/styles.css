@@ -192,6 +192,21 @@ a {
   right: 0;
 }
 
+/* Page courante (SIAT sur la page SIAT) — sticker corail incliné */
+.ia-nav-link.is-active {
+  background: var(--ia-coral);
+  color: var(--ia-white);
+  padding: 0.24em 0.8em;
+  border-radius: 6px;
+  transform: rotate(-2deg);
+  box-shadow: 3px 3px 0 var(--ia-blue-deep);
+  cursor: default;
+}
+
+.ia-nav-link.is-active::after {
+  display: none;
+}
+
 .ia-burger {
   display: none;
   flex-direction: column;
@@ -267,6 +282,25 @@ a {
 .ia-mobile-nav .ia-btn {
   margin-top: 26px;
   align-self: flex-start;
+}
+
+/* Page courante / à venir dans le menu mobile */
+.ia-mobile-nav .is-active {
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: 1.35rem;
+  color: var(--ia-coral);
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.ia-mobile-nav .is-soon {
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: 1.35rem;
+  color: rgba(255, 255, 255, 0.4);
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
 }
 
 /* ---------- Hero crème + réseau de neurones ---------- */

@@ -22,10 +22,13 @@ const SOCIAL_ICONS = {
 
 /**
  * Navbar de la page JNR (style menthe néo-brutaliste, inchangé).
- * Les liens pointent désormais vers la famille de rendez-vous :
- * JNR = page courante, les autres = bientôt disponibles.
+ * Contenu = même contenu que la HOME : la famille de rendez-vous.
+ * JNR = page courante (marquée), les autres pages sont accessibles.
  * Le logo ramène à la grande vitrine (page d'accueil globale).
  */
+const PAGE_KEY = 'jnr';
+const OFFICIAL_SITE = 'https://journeesreparation.fr/';
+
 export default function Header() {
   return (
     <header className="header">
@@ -37,8 +40,12 @@ export default function Header() {
 
         <nav className="nav" aria-label="Navigation principale">
           {THEMES.map((t) =>
-            t.live ? (
-              <a key={t.key} href="#accueil" className="is-active" title="Vous y êtes">
+            t.key === PAGE_KEY ? (
+              <span key={t.key} className="is-active" aria-current="page" title="Vous y êtes">
+                {t.acronym}
+              </span>
+            ) : t.live ? (
+              <a key={t.key} href={t.href}>
                 {t.acronym}
               </a>
             ) : (
@@ -61,8 +68,8 @@ export default function Header() {
           </a>
         </div>
 
-        <a href="#newsletter" className="btn header-cta">
-          Trouver un événement
+        <a href={OFFICIAL_SITE} target="_blank" rel="noopener noreferrer" className="btn header-cta">
+          Trouver un événement ↗
         </a>
       </div>
     </header>

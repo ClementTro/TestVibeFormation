@@ -179,6 +179,19 @@ a {
   right: 0;
 }
 
+/* Page courante (SNPS sur la page SNPS) — pilule jaune DA */
+.sn-nav-link.is-active {
+  background: var(--sn-yellow);
+  color: var(--sn-ink);
+  padding: 0.26em 0.85em;
+  border-radius: 999px;
+  cursor: default;
+}
+
+.sn-nav-link.is-active::after {
+  display: none;
+}
+
 /* ---------- Kickers ---------- */
 .sn-kicker {
   display: inline-block;
