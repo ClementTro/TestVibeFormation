@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { HammerHand, ScrewdriverHand, NeedleHand } from './HeroHands.jsx';
+import { HammerHand, ScrewdriverHand, WrenchHand } from './HeroHands.jsx';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -42,8 +42,8 @@ export default function Hero() {
     const shake = q('.hero-shake');
     const hammer = q('.hand--hammer');
     const screw = q('.hand--screwdriver');
-    const needle = q('.hand--needle');
-    const hands = [hammer, screw, needle];
+    const wrench = q('.hand--wrench');
+    const hands = [hammer, screw, wrench];
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -55,7 +55,7 @@ export default function Hero() {
     gsap.set(ctas, { y: 30, opacity: 0, scale: 0.7 });
     gsap.set(hammer, { xPercent: -160, yPercent: -150, rotation: -20 });
     gsap.set(screw, { xPercent: -190, yPercent: 30, rotation: 12 });
-    gsap.set(needle, { xPercent: 170, yPercent: -15, rotation: 18 });
+    gsap.set(wrench, { xPercent: 170, yPercent: -15, rotation: 18 });
     gsap.set(flash, { opacity: 0 });
     gsap.set(shake, { x: 0, y: 0 });
 
@@ -106,7 +106,7 @@ export default function Hero() {
       // Phase 2a : les mains entrent en jeu
       .to(hammer, { xPercent: 0, yPercent: 0, rotation: 0, duration: 1, ease: 'back.out(1.1)' }, '+=0.1')
       .to(screw, { xPercent: 0, yPercent: 0, rotation: 0, duration: 1, ease: 'back.out(1.1)' }, '<0.12')
-      .to(needle, { xPercent: 0, yPercent: 0, rotation: 0, duration: 1, ease: 'back.out(1.1)' }, '<0.12')
+      .to(wrench, { xPercent: 0, yPercent: 0, rotation: 0, duration: 1, ease: 'back.out(1.1)' }, '<0.12')
       // Phase 2b : coup de marteau
       .to(hammer, {
         rotation: -14,
@@ -157,15 +157,39 @@ export default function Hero() {
     });
   };
 
+  /**
+   * Centre exactement le panneau jaune (et sa lueur) sur le titre :
+   * on mesure la position réelle du <h1> dans le hero et on y aligne le panneau.
+   */
+  const centerPanel = () => {
+    const hero = root.current;
+    if (!hero) return;
+    const title = hero.querySelector('.hero-title');
+    const panel = hero.querySelector('.panel-wrap');
+    const glow = hero.querySelector('.hero-glow');
+    if (!title || !panel) return;
+    const hr = hero.getBoundingClientRect();
+    const tr = title.getBoundingClientRect();
+    const topPct = ((tr.top + tr.height / 2 - hr.top) / hr.height) * 100;
+    panel.style.top = `${topPct}%`;
+    panel.style.height = `${Math.round(tr.height * 1.3)}px`;
+    panel.style.width = `${Math.round(Math.min(tr.width * 1.18, hr.width * 0.95))}px`;
+    if (glow) glow.style.top = `${topPct}%`;
+  };
+
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
       // Démarrage quand les polices sont prêtes (évite le "jump" de layout)
-      const start = () => play();
+      const start = () => {
+        centerPanel();
+        play();
+      };
       if (document.fonts?.ready) {
         document.fonts.ready.then(start);
       } else {
         setTimeout(start, 200);
       }
+      window.addEventListener('resize', centerPanel);
 
       // Parallaxe au scroll : le visuel s'éloigne doucement
       gsap.to('.hero-visual', {
@@ -182,6 +206,7 @@ export default function Hero() {
     }, root);
 
     return () => {
+      window.removeEventListener('resize', centerPanel);
       tlRef.current?.kill();
       floatTlRef.current?.kill();
       ctx.revert();
@@ -203,7 +228,7 @@ export default function Hero() {
           </div>
           <HammerHand className="hand hand--hammer" />
           <ScrewdriverHand className="hand hand--screwdriver" />
-          <NeedleHand className="hand hand--needle" />
+          <WrenchHand className="hand hand--wrench" />
         </div>
         <div className="hero-flash" />
       </div>

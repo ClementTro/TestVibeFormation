@@ -245,25 +245,25 @@ a {
 
 .hand {
   position: absolute;
-  width: clamp(190px, 30vmin, 360px);
+  width: clamp(250px, 40vmin, 470px);
   z-index: 2;
   will-change: transform;
   pointer-events: none;
 }
 
 .hand--hammer {
-  top: -6%;
-  left: -6%;
+  top: 2%;
+  left: -3%;
 }
 
 .hand--screwdriver {
-  bottom: -8%;
-  left: -7%;
+  bottom: 4%;
+  left: -8%;
 }
 
-.hand--needle {
-  top: 34%;
-  right: -6%;
+.hand--wrench {
+  top: 36%;
+  right: -5%;
 }
 
 .hero-content {
@@ -276,7 +276,7 @@ a {
 
 .hero-title {
   font-family: var(--font-display);
-  font-size: clamp(2.4rem, 8vw, 6.5rem);
+  font-size: clamp(2.2rem, 6.5vw, 5.8rem);
   line-height: 1.08;
   text-transform: uppercase;
   color: var(--ink);
@@ -295,7 +295,7 @@ a {
 }
 
 .hero-sub {
-  margin: 1.2em auto 0;
+  margin: 1.8em auto 0;
   max-width: 620px;
   font-size: clamp(1.05rem, 2vw, 1.35rem);
   font-weight: 600;
