@@ -19,31 +19,31 @@ export const THEMES = [
   {
     key: 'snps',
     acronym: 'SNPS',
-    name: 'Bientôt révélées',
-    tag: "Un nouveau rendez-vous national se prépare dans l'ombre.",
-    date: 'Édition 2026 — à venir',
-    href: null,
-    live: false,
-    color: '#ffd500', // jaune
+    name: 'Semaine Nationale de la Prévention Santé',
+    tag: 'Agir concrètement pour sa santé, au quotidien.',
+    date: '1er → 7 juin 2026',
+    href: `${BASE}snps`,
+    live: true,
+    color: '#64edff', // cyan DA semaine-preventionsante.fr
   },
   {
     key: 'siat',
     acronym: 'SIAT',
-    name: 'Bientôt révélées',
-    tag: "Le mystère reste entier jusqu'à l'annonce officielle.",
-    date: 'Édition 2026 — à venir',
-    href: null,
-    live: false,
-    color: '#ff7ac8', // rose
+    name: 'La Semaine de l’IA pour Tous',
+    tag: 'Découvrir l’intelligence artificielle, près de chez vous.',
+    date: '18 → 24 mai 2026',
+    href: `${BASE}siat`,
+    live: true,
+    color: '#f56476', // corail DA semaine-ia.fr
   },
   {
     key: 'lgsv',
     acronym: 'LGSV',
-    name: 'Bientôt révélées',
-    tag: 'Dernière pièce du puzzle, dévoilée très bientôt.',
-    date: 'Édition 2026 — à venir',
-    href: null,
-    live: false,
-    color: '#9d8cff', // violet
+    name: 'La Grande Semaine Végétale',
+    tag: 'Dix jours pour se régaler autrement.',
+    date: '25 sept → 4 oct 2026',
+    href: `${BASE}lgsv`,
+    live: true,
+    color: '#d5f683', // lime DA lagrandesemainevegetale.fr
   },
 ];

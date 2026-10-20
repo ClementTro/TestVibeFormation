@@ -58,7 +58,7 @@ export default function RendezVous() {
           Une bannière, quatre rendez-vous
         </h2>
         <p className="ln-lead" data-reveal>
-          Chaque édition a sa couleur, son ambiance, sa navbar&nbsp;— et bientôt sa page.
+          Chaque édition a sa couleur, son ambiance, sa navbar — et désormais sa page.
           Fais défiler, la suite se raconte toute seule.
         </p>
       </div>
