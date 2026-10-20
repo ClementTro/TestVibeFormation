@@ -1,7 +1,6 @@
 import { useLayoutEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { HammerHand, ScrewdriverHand, WrenchHand } from './HeroHands.jsx';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -22,6 +21,12 @@ const SHARDS = [
   'polygon(72% 52%, 100% 66%, 100% 100%, 78% 100%)',
 ];
 
+/**
+ * NOTE POUR REPRISE (voir HANDOFF.md à la racine) :
+ * la séquence admet une phase "mains qui réparent" entre l'explosion
+ * et la réassemblage. Injecter des éléments .hand ( classe CSS + refs
+ * hammer/screw/wrench ) ici et la timeline les ajoutera automatiquement.
+ */
 export default function Hero() {
   const root = useRef(null);
   const tlRef = useRef(null);
@@ -43,7 +48,8 @@ export default function Hero() {
     const hammer = q('.hand--hammer');
     const screw = q('.hand--screwdriver');
     const wrench = q('.hand--wrench');
-    const hands = [hammer, screw, wrench];
+    const hands = [hammer, screw, wrench].filter((h) => h.length > 0);
+    const hasHands = hands.length === 3;
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -53,16 +59,18 @@ export default function Hero() {
     gsap.set(words, { yPercent: 130, opacity: 0 });
     gsap.set(sub, { y: 30, opacity: 0 });
     gsap.set(ctas, { y: 30, opacity: 0, scale: 0.7 });
-    gsap.set(hammer, { xPercent: -160, yPercent: -150, rotation: -20 });
-    gsap.set(screw, { xPercent: -190, yPercent: 30, rotation: 12 });
-    gsap.set(wrench, { xPercent: 170, yPercent: -15, rotation: 18 });
     gsap.set(flash, { opacity: 0 });
     gsap.set(shake, { x: 0, y: 0 });
+    if (hasHands) {
+      gsap.set(hammer, { xPercent: -160, yPercent: -150, rotation: -20 });
+      gsap.set(screw, { xPercent: -190, yPercent: 30, rotation: 12 });
+      gsap.set(wrench, { xPercent: 170, yPercent: -15, rotation: 18 });
+    }
 
     if (reduced) {
       gsap.set(words, { yPercent: 0, opacity: 1 });
       gsap.set([sub, ctas], { y: 0, opacity: 1, scale: 1 });
-      gsap.set(hands, { xPercent: 0, yPercent: 0, rotation: 0 });
+      if (hasHands) gsap.set(hands, { xPercent: 0, yPercent: 0, rotation: 0 });
       return;
     }
 
@@ -102,35 +110,39 @@ export default function Hero() {
           stagger: { each: 0.035, from: 'center' },
         },
         '-=0.05'
-      )
-      // Phase 2a : les mains entrent en jeu
-      .to(hammer, { xPercent: 0, yPercent: 0, rotation: 0, duration: 1, ease: 'back.out(1.1)' }, '+=0.1')
-      .to(screw, { xPercent: 0, yPercent: 0, rotation: 0, duration: 1, ease: 'back.out(1.1)' }, '<0.12')
-      .to(wrench, { xPercent: 0, yPercent: 0, rotation: 0, duration: 1, ease: 'back.out(1.1)' }, '<0.12')
-      // Phase 2b : coup de marteau
-      .to(hammer, {
+      );
+
+    // Phase 2a (optionnelle) : les mains entrent en jeu
+    if (hasHands) {
+      tl.to(hammer, { xPercent: 0, yPercent: 0, rotation: 0, duration: 1, ease: 'back.out(1.1)' }, '+=0.1');
+      tl.to(screw, { xPercent: 0, yPercent: 0, rotation: 0, duration: 1, ease: 'back.out(1.1)' }, '<0.12');
+      tl.to(wrench, { xPercent: 0, yPercent: 0, rotation: 0, duration: 1, ease: 'back.out(1.1)' }, '<0.12');
+      // coup de marteau
+      tl.to(hammer, {
         rotation: -14,
         duration: 0.1,
         yoyo: true,
         repeat: 1,
         ease: 'power1.inOut',
         transformOrigin: '20% 20%',
-      })
-      // Phase 2c : les mains réassemblent les éclats
-      .to(
-        shards,
-        {
-          x: 0,
-          y: 0,
-          rotation: 0,
-          filter: 'blur(0px)',
-          opacity: 1,
-          duration: 1,
-          ease: 'power2.inOut',
-          stagger: { each: 0.045, from: 'random' },
-        },
-        '<'
-      )
+      });
+    }
+
+    // Phase 2b : réassemblage des éclats
+    tl.to(
+      shards,
+      {
+        x: 0,
+        y: 0,
+        rotation: 0,
+        filter: 'blur(0px)',
+        opacity: 1,
+        duration: 1,
+        ease: 'power2.inOut',
+        stagger: { each: 0.045, from: 'random' },
+      },
+      hasHands ? '<' : '+=0.15'
+    )
       // pulsation de la lueur jaune
       .fromTo(
         glow,
@@ -146,15 +158,17 @@ export default function Hero() {
     tlRef.current = tl;
 
     // Respiration légère des mains une fois la réparation faite
-    floatTlRef.current = gsap.to(hands, {
-      y: '+=10',
-      duration: 1.8,
-      yoyo: true,
-      repeat: -1,
-      ease: 'sine.inOut',
-      stagger: 0.35,
-      delay: tl.duration() + 0.2,
-    });
+    if (hasHands) {
+      floatTlRef.current = gsap.to(hands, {
+        y: '+=10',
+        duration: 1.8,
+        yoyo: true,
+        repeat: -1,
+        ease: 'sine.inOut',
+        stagger: 0.35,
+        delay: tl.duration() + 0.2,
+      });
+    }
   };
 
   /**
@@ -215,7 +229,7 @@ export default function Hero() {
 
   return (
     <section className="hero" id="accueil" ref={root}>
-      {/* Couche visuelle : glow + panneau brisé + mains */}
+      {/* Couche visuelle : glow + panneau brisé */}
       <div className="hero-shake">
         <div className="hero-visual">
           <div className="hero-glow" />
@@ -226,9 +240,7 @@ export default function Hero() {
               ))}
             </div>
           </div>
-          <HammerHand className="hand hand--hammer" />
-          <ScrewdriverHand className="hand hand--screwdriver" />
-          <WrenchHand className="hand hand--wrench" />
+          {/* Emplacement des mains réparatrices : voir HANDOFF.md */}
         </div>
         <div className="hero-flash" />
       </div>
