@@ -20,6 +20,7 @@ export default defineConfig({
         lgsv: resolve(__dirname, 'lgsv.html'),
         siat: resolve(__dirname, 'siat.html'),
         snps: resolve(__dirname, 'snps.html'),
+        poc: resolve(__dirname, 'poc.html'),
       },
     },
   },
