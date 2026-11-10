@@ -499,7 +499,8 @@ a {
 .map-frame iframe {
   display: block;
   width: 100%;
-  height: clamp(420px, 65vh, 680px);
+  height: 80vh;
+  min-height: 420px;
   border: 0;
 }
 
