@@ -472,6 +472,37 @@ a {
   margin-top: 48px;
 }
 
+/* ---------- Carte interactive ---------- */
+.map-section {
+  background: var(--yellow-soft);
+  border-block: var(--border);
+}
+
+.map-frame {
+  margin-top: 48px;
+  background: var(--paper);
+  border: var(--border);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  transform: rotate(-0.6deg);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.map-frame:hover {
+  transform: rotate(0deg) translate(-3px, -6px);
+  box-shadow: 10px 12px 0 var(--ink);
+}
+
+.map-frame iframe {
+  display: block;
+  width: 100%;
+  height: clamp(420px, 65vh, 680px);
+  border: 0;
+}
+
 /* ---------- Actualités ---------- */
 .news-head {
   display: flex;

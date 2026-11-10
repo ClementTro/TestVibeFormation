@@ -402,7 +402,7 @@ export default function Hero() {
       </div>
 
       <div className="hero-ctas">
-        <a href="#newsletter" className="btn">
+        <a href="#carte" className="btn">
           Trouver un événement
         </a>
         <a href="#newsletter" className="btn btn--white">
